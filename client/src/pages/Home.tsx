@@ -92,6 +92,7 @@ export default function Home() {
   );
   const paymentStatus = paymentStatusQuery.data?.status ?? "pending";
   const canFinish = paymentStatus === "approved";
+  const isExpired = paymentStatus === "expired";
   const submitCheckout = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setCheckoutOpen(false);
@@ -194,11 +195,11 @@ export default function Home() {
           <div className="relative w-full max-w-md bg-[#fffdfa] p-7 text-center shadow-2xl sm:p-10">
             <button onClick={() => setComplete(false)} className="absolute right-4 top-4 grid h-9 w-9 place-items-center border border-[#deddd7] text-[#77766f] transition hover:border-[#ed1c2e] hover:text-[#ed1c2e]" aria-label="Close payment status"><X size={17} /></button>
             <div className={`mx-auto grid h-16 w-16 place-items-center rounded-full ${canFinish ? "bg-[#e7f7ed] text-[#20a15a]" : paymentStatus === "rejected" ? "bg-[#f2f1ee] text-[#89877f]" : "bg-[#fff1f1] text-[#ed1c2e]"}`}><Clock3 size={34} /></div>
-            <div className="mt-6 text-[10px] font-bold uppercase tracking-[0.2em] text-[#ed1c2e]">{canFinish ? "Payment approved" : paymentStatus === "rejected" ? "Payment rejected" : "Payment submitted"}</div>
-            <h2 className="mt-3 font-display text-4xl font-black tracking-[-0.07em]">{canFinish ? "You’re good to go." : paymentStatus === "rejected" ? "Payment needs attention." : "Your payment is in review."}</h2>
-            <p className="mx-auto mt-4 max-w-xs text-sm leading-6 text-[#85847d]">{canFinish ? `Your QR payment for ${name || "your visit"} at ${gym} on ${formatDate(date)} has been confirmed by PowerWorld.` : paymentStatus === "rejected" ? "The owner could not confirm this payment. Please contact PowerWorld before visiting." : `Your QR payment for ${name || "your visit"} at ${gym} on ${formatDate(date)} was sent to the PowerWorld owner for confirmation.`}</p>
-            <div className="mt-7 flex items-center justify-between border-y border-[#e3e1db] py-4 text-left"><div><div className="text-xs text-[#8b8a83]">Total</div><div className="font-display text-2xl font-black">LKR {total.toLocaleString()}</div></div><div className="text-right"><div className="text-xs text-[#8b8a83]">Status</div><div className={`font-display text-2xl font-black ${canFinish ? "text-[#20a15a]" : "text-[#ed1c2e]"}`}>{canFinish ? "Approved" : paymentStatus === "rejected" ? "Rejected" : "Pending"}</div></div></div>
-            <button disabled={!canFinish} onClick={() => { if (canFinish) window.location.href = `/pass/${requestToken}`; }} className={`mt-7 w-full px-5 py-4 text-sm font-bold text-white transition ${canFinish ? "bg-[#ed1c2e] hover:bg-[#c51426]" : "cursor-not-allowed bg-[#b9b7b1]"}`}>{canFinish ? "View your day pass" : paymentStatus === "rejected" ? "Payment rejected" : "Waiting for owner approval…"}</button>
+            <div className="mt-6 text-[10px] font-bold uppercase tracking-[0.2em] text-[#ed1c2e]">{canFinish ? "Payment approved" : isExpired ? "Pass expired" : paymentStatus === "rejected" ? "Payment rejected" : "Payment submitted"}</div>
+            <h2 className="mt-3 font-display text-4xl font-black tracking-[-0.07em]">{canFinish ? "You’re good to go." : isExpired ? "This pass has expired." : paymentStatus === "rejected" ? "Payment needs attention." : "Your payment is in review."}</h2>
+            <p className="mx-auto mt-4 max-w-xs text-sm leading-6 text-[#85847d]">{canFinish ? `Your QR payment for ${name || "your visit"} at ${gym} on ${formatDate(date)} has been confirmed by PowerWorld.` : isExpired ? `This day pass expired at 10:00 PM Sri Lanka time on ${formatDate(date)}.` : paymentStatus === "rejected" ? "The owner could not confirm this payment. Please contact PowerWorld before visiting." : `Your QR payment for ${name || "your visit"} at ${gym} on ${formatDate(date)} was sent to the PowerWorld owner for confirmation.`}</p>
+            <div className="mt-7 flex items-center justify-between border-y border-[#e3e1db] py-4 text-left"><div><div className="text-xs text-[#8b8a83]">Total</div><div className="font-display text-2xl font-black">LKR {total.toLocaleString()}</div></div><div className="text-right"><div className="text-xs text-[#8b8a83]">Status</div><div className={`font-display text-2xl font-black ${canFinish ? "text-[#20a15a]" : "text-[#ed1c2e]"}`}>{canFinish ? "Approved" : isExpired ? "Expired" : paymentStatus === "rejected" ? "Rejected" : "Pending"}</div></div></div>
+            <button disabled={!canFinish} onClick={() => { if (canFinish) window.location.href = `/pass/${requestToken}`; }} className={`mt-7 w-full px-5 py-4 text-sm font-bold text-white transition ${canFinish ? "bg-[#ed1c2e] hover:bg-[#c51426]" : "cursor-not-allowed bg-[#b9b7b1]"}`}>{canFinish ? "View your day pass" : isExpired ? "Pass expired" : paymentStatus === "rejected" ? "Payment rejected" : "Waiting for owner approval…"}</button>
           </div>
         </div>
       )}

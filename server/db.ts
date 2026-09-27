@@ -106,11 +106,25 @@ export async function getPaymentRequestStatus(confirmationToken: string) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
   const result = await db
-    .select({ status: paymentRequests.status, reviewedAt: paymentRequests.reviewedAt })
+    .select({ status: paymentRequests.status, visitDate: paymentRequests.visitDate, reviewedAt: paymentRequests.reviewedAt })
     .from(paymentRequests)
     .where(eq(paymentRequests.confirmationToken, confirmationToken))
     .limit(1);
-  return result[0] ?? null;
+  const request = result[0];
+  if (!request) return null;
+  return request.status === "approved" && isDayPassExpired(request.visitDate)
+    ? { ...request, status: "expired" as const }
+    : request;
+}
+
+export function getDayPassExpiryAt(visitDate: string) {
+  const [year, month, day] = visitDate.split("-").map(Number);
+  // Sri Lanka is UTC+05:30. 22:00 local time is 16:30 UTC.
+  return new Date(Date.UTC(year, month - 1, day, 16, 30, 0));
+}
+
+export function isDayPassExpired(visitDate: string) {
+  return Date.now() >= getDayPassExpiryAt(visitDate).getTime();
 }
 
 export async function getPaymentPassByToken(confirmationToken: string) {
@@ -131,7 +145,11 @@ export async function getPaymentPassByToken(confirmationToken: string) {
     .from(paymentRequests)
     .where(eq(paymentRequests.confirmationToken, confirmationToken))
     .limit(1);
-  return result[0] ?? null;
+  const pass = result[0];
+  if (!pass) return null;
+  return pass.status === "approved" && isDayPassExpired(pass.visitDate)
+    ? { ...pass, status: "expired" as const }
+    : pass;
 }
 
 export async function updatePaymentRequestStatus(

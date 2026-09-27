@@ -24,13 +24,15 @@ export default function Pass() {
     return <div className="grid min-h-screen place-items-center bg-[#f5f5f5] text-sm text-[#77766f]">Loading your day pass…</div>;
   }
 
+  const isExpired = pass?.status === "expired";
+
   if (!pass || pass.status !== "approved") {
     return (
       <main className="grid min-h-screen place-items-center bg-[#f5f5f5] p-5 text-[#181817]">
         <div className="w-full max-w-md border border-[#e1e0dc] bg-white p-8 text-center shadow-[0_10px_35px_rgba(24,24,23,0.06)]">
           <div className="mx-auto grid h-14 w-14 place-items-center bg-[#fff1f1] text-[#ed1c2e]"><Clock3 size={27} /></div>
-          <h1 className="mt-6 font-display text-3xl font-black tracking-[-0.06em]">Day pass not active yet</h1>
-          <p className="mt-3 text-sm leading-6 text-[#77766f]">Your pass details will appear here after the PowerWorld owner confirms your QR payment.</p>
+          <h1 className="mt-6 font-display text-3xl font-black tracking-[-0.06em]">{isExpired ? "Day pass expired" : "Day pass not active yet"}</h1>
+          <p className="mt-3 text-sm leading-6 text-[#77766f]">{isExpired ? "This day pass ended at 10:00 PM Sri Lanka time on the selected visit date. The pass cannot be opened again." : "Your pass details will appear here after the PowerWorld owner confirms your QR payment."}</p>
           <Link href="/" className="mt-7 inline-flex items-center gap-2 bg-[#ed1c2e] px-5 py-3 text-sm font-bold text-white transition hover:bg-[#c51426]"><ArrowLeft size={16} /> Back to purchase page</Link>
         </div>
       </main>
@@ -62,7 +64,7 @@ export default function Pass() {
           <div className="px-5 py-6 sm:px-8 sm:py-8">
             <div className="flex items-center gap-4"><div className="grid h-14 w-14 place-items-center rounded-full bg-[#181817] text-white"><Ticket size={25} /></div><div><h2 className="font-display text-2xl font-black tracking-[-0.05em]">{pass.customerName}</h2><p className="mt-1 text-sm text-[#77766f]">PowerWorld · One-day gym access</p></div><div className="ml-auto hidden rounded-full bg-[#e7f7ed] p-2 text-[#20a15a] sm:block"><Check size={18} /></div></div>
             <div className="my-7 border-t border-[#e3e3e3]" />
-            <div className="grid gap-6 sm:grid-cols-2"><div><div className="text-xs font-semibold uppercase tracking-[0.14em] text-[#a09e98]">Pass value</div><div className="mt-2 font-display text-3xl font-black">LKR {pass.amount.toLocaleString()}</div></div><div><div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-[#a09e98]"><CalendarDays size={14} /> Valid date</div><div className="mt-2 text-lg font-bold">{formatDate(pass.visitDate)}</div></div></div>
+            <div className="grid gap-6 sm:grid-cols-2"><div><div className="text-xs font-semibold uppercase tracking-[0.14em] text-[#a09e98]">Pass value</div><div className="mt-2 font-display text-3xl font-black">LKR {pass.amount.toLocaleString()}</div></div><div><div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-[#a09e98]"><CalendarDays size={14} /> Valid date</div><div className="mt-2 text-lg font-bold">{formatDate(pass.visitDate)}</div><div className="mt-1 text-xs text-[#8b8a83]">Valid until 10:00 PM Sri Lanka time</div></div></div>
             <div className="my-7 border-t border-[#e3e3e3]" />
             <div className="grid gap-5 sm:grid-cols-2"><div><div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-[#a09e98]"><MapPin size={14} /> Gym branch</div><div className="mt-2 text-base font-bold">{pass.branch}</div></div><div><div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-[#a09e98]"><QrCode size={14} /> Entry status</div><div className="mt-2 text-base font-bold text-[#20a15a]">Ready to check in</div></div></div>
           </div>
