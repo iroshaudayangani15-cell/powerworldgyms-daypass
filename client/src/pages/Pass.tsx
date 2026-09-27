@@ -53,7 +53,7 @@ export default function Pass() {
 
       <div className="mx-auto max-w-[850px] px-5 pb-12 pt-8 sm:px-8 sm:pt-10">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3"><Link href="/" className="grid h-9 w-9 place-items-center rounded-full border border-[#deddd7] bg-white text-[#595852] transition hover:border-[#ed1c2e] hover:text-[#ed1c2e]" aria-label="Back"><ArrowLeft size={17} /></Link><h1 className="font-display text-3xl font-black tracking-[-0.06em] sm:text-4xl">Day pass</h1></div>
+          <div className="flex items-center gap-3"><Link href="/" className="grid h-9 w-9 place-items-center rounded-full border border-[#deddd7] bg-white text-[#595852] transition hover:border-[#ed1c2e] hover:text-[#ed1c2e]" aria-label="Back"><ArrowLeft size={17} /></Link><h1 className="font-display text-3xl font-black tracking-[-0.06em] sm:text-4xl">PowerWorldGyms Day Pass</h1></div>
           <div className="hidden items-center gap-2 text-xs font-bold text-[#24804a] sm:flex"><ShieldCheck size={15} /> Confirmed</div>
         </div>
         <div className="mt-6 flex items-center gap-1 border-b border-[#e2e2e2] text-sm font-semibold text-[#9b9a95]"><span className="border-b-2 border-[#181817] px-4 py-3 text-[#181817]">Primary</span><span className="px-4 py-3">Pass history</span></div>
