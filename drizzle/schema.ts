@@ -29,6 +29,7 @@ export const accessRequests = mysqlTable("access_requests", {
   status: mysqlEnum("status", ["pending", "approved", "rejected"]).notNull().default("pending"),
   accessCode: varchar("accessCode", { length: 16 }),
   accessToken: varchar("accessToken", { length: 64 }).unique(),
+  accessExpiresAt: timestamp("accessExpiresAt"),
   requestedAt: timestamp("requestedAt").defaultNow().notNull(),
   reviewedAt: timestamp("reviewedAt"),
   reviewedBy: varchar("reviewedBy", { length: 64 }),

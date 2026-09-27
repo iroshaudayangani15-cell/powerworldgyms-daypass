@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { trpc } from "@/lib/trpc";
 import {
   ArrowRight,
@@ -78,8 +78,14 @@ export default function Home() {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const total = quantity * 2000;
-  const accessQuery = trpc.access.verify.useQuery({ token: accessToken }, { enabled: Boolean(accessToken), refetchOnWindowFocus: false });
+  const accessQuery = trpc.access.verify.useQuery({ token: accessToken }, { enabled: Boolean(accessToken), refetchOnWindowFocus: true, refetchInterval: accessToken ? 30000 : false });
   const hasBuyerAccess = accessQuery.data?.status === "approved";
+  useEffect(() => {
+    if (accessToken && !accessQuery.isLoading && !accessQuery.isFetching && !hasBuyerAccess) {
+      window.localStorage.removeItem("powerworld_access_token");
+      setAccessToken("");
+    }
+  }, [accessToken, accessQuery.isFetching, accessQuery.isLoading, hasBuyerAccess]);
   const submitPayment = trpc.payments.submitQr.useMutation({
     onSuccess: (result) => {
       setRequestToken(result.confirmationToken);

@@ -23,7 +23,21 @@ export async function getBuyerAccessByToken(accessToken: string) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
   const result = await db.select().from(accessRequests).where(eq(accessRequests.accessToken, accessToken)).limit(1);
-  return result[0] ?? null;
+  const request = result[0];
+  if (!request || request.status !== "approved") return null;
+  if (request.accessExpiresAt && Date.now() >= request.accessExpiresAt.getTime()) return null;
+  if (!request.accessExpiresAt) {
+    const accessExpiresAt = getSriLankaAccessExpiryAt();
+    if (Date.now() >= accessExpiresAt.getTime()) return null;
+    await db.update(accessRequests).set({ accessExpiresAt }).where(eq(accessRequests.id, request.id));
+    request.accessExpiresAt = accessExpiresAt;
+  }
+  return request;
+}
+
+export function getSriLankaAccessExpiryAt(now = new Date()) {
+  const sriLankaNow = new Date(now.getTime() + 5.5 * 60 * 60 * 1000);
+  return new Date(Date.UTC(sriLankaNow.getUTCFullYear(), sriLankaNow.getUTCMonth(), sriLankaNow.getUTCDate(), 16, 30, 0));
 }
 
 export async function redeemAccessCode(accessCode: string) {
@@ -31,7 +45,14 @@ export async function redeemAccessCode(accessCode: string) {
   if (!db) throw new Error("Database is not available");
   const result = await db.select().from(accessRequests).where(eq(accessRequests.accessCode, accessCode)).limit(1);
   const request = result[0];
-  return request?.status === "approved" && request.accessToken ? { accessToken: request.accessToken, customerName: request.customerName } : null;
+  if (!request || request.status !== "approved" || !request.accessToken) return null;
+  if (request.accessExpiresAt && Date.now() >= request.accessExpiresAt.getTime()) return null;
+  if (!request.accessExpiresAt) {
+    const accessExpiresAt = getSriLankaAccessExpiryAt();
+    if (Date.now() >= accessExpiresAt.getTime()) return null;
+    await db.update(accessRequests).set({ accessExpiresAt }).where(eq(accessRequests.id, request.id));
+  }
+  return { accessToken: request.accessToken, customerName: request.customerName };
 }
 
 export async function updateAccessRequestStatus(id: number, status: "approved" | "rejected", reviewedBy: string) {
