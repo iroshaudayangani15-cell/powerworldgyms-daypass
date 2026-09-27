@@ -6,6 +6,7 @@ import { systemRouter } from "./_core/systemRouter";
 import { adminProcedure, publicProcedure, router } from "./_core/trpc";
 import {
   createPaymentRequest,
+  getPaymentPassByToken,
   getPaymentRequestStatus,
   listPaymentRequests,
   updatePaymentRequestStatus,
@@ -50,6 +51,9 @@ export const appRouter = router({
     status: publicProcedure
       .input(z.object({ token: z.string().uuid() }))
       .query(({ input }) => getPaymentRequestStatus(input.token)),
+    pass: publicProcedure
+      .input(z.object({ token: z.string().uuid() }))
+      .query(({ input }) => getPaymentPassByToken(input.token)),
     list: adminProcedure.query(() => listPaymentRequests()),
     updateStatus: adminProcedure
       .input(

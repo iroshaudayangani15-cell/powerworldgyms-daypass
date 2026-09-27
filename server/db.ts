@@ -113,6 +113,27 @@ export async function getPaymentRequestStatus(confirmationToken: string) {
   return result[0] ?? null;
 }
 
+export async function getPaymentPassByToken(confirmationToken: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const result = await db
+    .select({
+      id: paymentRequests.id,
+      customerName: paymentRequests.customerName,
+      branch: paymentRequests.branch,
+      visitDate: paymentRequests.visitDate,
+      quantity: paymentRequests.quantity,
+      amount: paymentRequests.amount,
+      status: paymentRequests.status,
+      submittedAt: paymentRequests.submittedAt,
+      reviewedAt: paymentRequests.reviewedAt,
+    })
+    .from(paymentRequests)
+    .where(eq(paymentRequests.confirmationToken, confirmationToken))
+    .limit(1);
+  return result[0] ?? null;
+}
+
 export async function updatePaymentRequestStatus(
   id: number,
   status: "approved" | "rejected",
