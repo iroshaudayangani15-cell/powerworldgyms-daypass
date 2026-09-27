@@ -6,7 +6,6 @@ import {
   Check,
   ChevronDown,
   Clock3,
-  Dumbbell,
   Info,
   LockKeyhole,
   MapPin,
@@ -20,9 +19,28 @@ import {
 } from "lucide-react";
 
 const gyms = [
-  { name: "Colombo 03", detail: "Open until 11:00 PM", tag: "Most popular" },
-  { name: "Nugegoda", detail: "Open until 10:00 PM", tag: "24/7 access" },
-  { name: "Rajagiriya", detail: "Open until 10:00 PM", tag: "New" },
+  { name: "Attidiya", detail: "Open daily", tag: "Branch" },
+  { name: "Bellanthara", detail: "Open daily", tag: "Branch" },
+  { name: "Bokundara", detail: "Open daily", tag: "Branch" },
+  { name: "Boralesgamuwa", detail: "Open daily", tag: "Branch" },
+  { name: "CR & FC", detail: "Open daily", tag: "Branch" },
+  { name: "The Ladies", detail: "Open daily", tag: "Ladies only" },
+  { name: "Ethul Kotte", detail: "Open daily", tag: "Branch" },
+  { name: "High Level", detail: "Open daily", tag: "Branch" },
+  { name: "IDH", detail: "Open daily", tag: "Branch" },
+  { name: "Kalubowila", detail: "Open daily", tag: "Branch" },
+  { name: "Kiribathgoda", detail: "Open daily", tag: "Branch" },
+  { name: "Kotahena", detail: "Open daily", tag: "Branch" },
+  { name: "Kottawa", detail: "Open daily", tag: "Branch" },
+  { name: "Maharagama", detail: "Open daily", tag: "Branch" },
+  { name: "Malabe", detail: "Open daily", tag: "Branch" },
+  { name: "Moratuwa", detail: "Open daily", tag: "Branch" },
+  { name: "Nawala", detail: "Open daily", tag: "Branch" },
+  { name: "Obesekarapura", detail: "Open daily", tag: "Branch" },
+  { name: "Ragama", detail: "Open daily", tag: "Branch" },
+  { name: "Tamil Union", detail: "Open daily", tag: "Branch" },
+  { name: "Welisara", detail: "Open daily", tag: "Branch" },
+  { name: "Welisarathease", detail: "Open daily", tag: "Branch" },
 ];
 
 const benefits = [
@@ -63,16 +81,8 @@ export default function Home() {
     <main className="min-h-screen overflow-hidden bg-[#f5f4f1] text-[#181817]">
       <div className="mx-auto min-h-screen max-w-[1440px] px-4 sm:px-6 lg:px-10">
         <header className="relative z-20 flex items-center justify-between py-5 lg:py-7">
-          <a href="#top" className="group flex items-center gap-2" aria-label="PowerWorld home">
-            <span className="relative grid h-10 w-10 place-items-center overflow-hidden bg-[#ed1c2e] text-white shadow-[0_8px_24px_rgba(237,28,46,0.28)]">
-              <span className="absolute -right-2 top-1 h-12 w-3 rotate-[22deg] bg-white/90" />
-              <span className="absolute right-2 top-0 h-12 w-1 rotate-[22deg] bg-white/90" />
-              <Dumbbell size={17} strokeWidth={2.5} className="relative z-10" />
-            </span>
-            <span className="leading-none">
-              <span className="block font-display text-[19px] font-extrabold tracking-[-0.07em]">POWER<span className="text-[#ed1c2e]">WORLD</span></span>
-              <span className="mt-1 block text-[8px] font-semibold uppercase tracking-[0.28em] text-[#73736d]">Fitness centres</span>
-            </span>
+          <a href="#top" className="group flex items-center gap-3" aria-label="PowerWorld home">
+            <img src="/manus-storage/powerworld-logo-header_5dd68be4.png" alt="PowerWorld Fitness Centres" className="h-11 w-auto object-contain sm:h-12" />
           </a>
 
           <nav className="hidden items-center gap-8 text-[13px] font-semibold text-[#6e6d66] lg:flex">
