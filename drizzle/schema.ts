@@ -22,6 +22,18 @@ export const users = mysqlTable("users", {
   lastSignedIn: timestamp("lastSignedIn").defaultNow().notNull(),
 });
 
+export const accessRequests = mysqlTable("access_requests", {
+  id: int("id").autoincrement().primaryKey(),
+  customerName: varchar("customerName", { length: 160 }).notNull(),
+  phone: varchar("phone", { length: 32 }).notNull(),
+  status: mysqlEnum("status", ["pending", "approved", "rejected"]).notNull().default("pending"),
+  accessCode: varchar("accessCode", { length: 16 }),
+  accessToken: varchar("accessToken", { length: 64 }).unique(),
+  requestedAt: timestamp("requestedAt").defaultNow().notNull(),
+  reviewedAt: timestamp("reviewedAt"),
+  reviewedBy: varchar("reviewedBy", { length: 64 }),
+});
+
 export const paymentRequests = mysqlTable("payment_requests", {
   id: int("id").autoincrement().primaryKey(),
   customerName: varchar("customerName", { length: 160 }).notNull(),
@@ -40,5 +52,7 @@ export const paymentRequests = mysqlTable("payment_requests", {
 
 export type User = typeof users.$inferSelect;
 export type InsertUser = typeof users.$inferInsert;
+export type AccessRequest = typeof accessRequests.$inferSelect;
+export type InsertAccessRequest = typeof accessRequests.$inferInsert;
 export type PaymentRequest = typeof paymentRequests.$inferSelect;
 export type InsertPaymentRequest = typeof paymentRequests.$inferInsert;

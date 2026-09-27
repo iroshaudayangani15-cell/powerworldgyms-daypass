@@ -15,6 +15,13 @@
       "when": 1790502871763,
       "tag": "0001_mean_micromacro",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1790506370122,
+      "tag": "0002_hard_leopardon",
+      "breakpoints": true
     }
   ]
 }

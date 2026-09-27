@@ -1,9 +1,47 @@
 import { desc, eq } from "drizzle-orm";
+import { randomUUID } from "node:crypto";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertPaymentRequest, InsertUser, paymentRequests, users } from "../drizzle/schema";
+import { AccessRequest, InsertAccessRequest, InsertPaymentRequest, InsertUser, accessRequests, paymentRequests, users } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
+
+export async function createAccessRequest(input: Pick<InsertAccessRequest, "customerName" | "phone">) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const result = await db.insert(accessRequests).values({ ...input, status: "pending" });
+  return { id: Number(result[0].insertId) };
+}
+
+export async function listAccessRequests() {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  return db.select().from(accessRequests).orderBy(desc(accessRequests.requestedAt));
+}
+
+export async function getBuyerAccessByToken(accessToken: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const result = await db.select().from(accessRequests).where(eq(accessRequests.accessToken, accessToken)).limit(1);
+  return result[0] ?? null;
+}
+
+export async function redeemAccessCode(accessCode: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const result = await db.select().from(accessRequests).where(eq(accessRequests.accessCode, accessCode)).limit(1);
+  const request = result[0];
+  return request?.status === "approved" && request.accessToken ? { accessToken: request.accessToken, customerName: request.customerName } : null;
+}
+
+export async function updateAccessRequestStatus(id: number, status: "approved" | "rejected", reviewedBy: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const accessCode = status === "approved" ? randomUUID().replace(/-/g, "").slice(0, 8).toUpperCase() : null;
+  const accessToken = status === "approved" ? randomUUID() : null;
+  await db.update(accessRequests).set({ status, accessCode, accessToken, reviewedAt: new Date(), reviewedBy }).where(eq(accessRequests.id, id));
+  return { success: true, accessCode } as const;
+}
 
 // Lazily create the drizzle instance so local tooling can run without a DB.
 export async function getDb() {
