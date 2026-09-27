@@ -30,6 +30,7 @@ export const paymentRequests = mysqlTable("payment_requests", {
   visitDate: varchar("visitDate", { length: 10 }).notNull(),
   quantity: int("quantity").notNull().default(1),
   amount: int("amount").notNull(),
+  confirmationToken: varchar("confirmationToken", { length: 64 }).unique(),
   paymentMethod: mysqlEnum("paymentMethod", ["qr"]).notNull().default("qr"),
   status: mysqlEnum("status", ["pending", "approved", "rejected"]).notNull().default("pending"),
   submittedAt: timestamp("submittedAt").defaultNow().notNull(),

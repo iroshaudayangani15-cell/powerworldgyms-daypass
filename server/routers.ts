@@ -1,10 +1,12 @@
 import { z } from "zod";
+import { randomUUID } from "node:crypto";
 import { COOKIE_NAME } from "@shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { adminProcedure, publicProcedure, router } from "./_core/trpc";
 import {
   createPaymentRequest,
+  getPaymentRequestStatus,
   listPaymentRequests,
   updatePaymentRequestStatus,
 } from "./db";
@@ -35,13 +37,19 @@ export const appRouter = router({
           amount: z.number().int().min(2000).max(10000),
         }),
       )
-      .mutation(({ input }) =>
-        createPaymentRequest({
+      .mutation(async ({ input }) => {
+        const confirmationToken = randomUUID();
+        const result = await createPaymentRequest({
           ...input,
+          confirmationToken,
           paymentMethod: "qr",
           status: "pending",
-        }),
-      ),
+        });
+        return { ...result, confirmationToken };
+      }),
+    status: publicProcedure
+      .input(z.object({ token: z.string().uuid() }))
+      .query(({ input }) => getPaymentRequestStatus(input.token)),
     list: adminProcedure.query(() => listPaymentRequests()),
     updateStatus: adminProcedure
       .input(

@@ -102,6 +102,17 @@ export async function listPaymentRequests() {
   return db.select().from(paymentRequests).orderBy(desc(paymentRequests.submittedAt));
 }
 
+export async function getPaymentRequestStatus(confirmationToken: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const result = await db
+    .select({ status: paymentRequests.status, reviewedAt: paymentRequests.reviewedAt })
+    .from(paymentRequests)
+    .where(eq(paymentRequests.confirmationToken, confirmationToken))
+    .limit(1);
+  return result[0] ?? null;
+}
+
 export async function updatePaymentRequestStatus(
   id: number,
   status: "approved" | "rejected",

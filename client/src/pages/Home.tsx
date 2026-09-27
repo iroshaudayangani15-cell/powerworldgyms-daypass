@@ -73,17 +73,25 @@ export default function Home() {
   const [paymentOpen, setPaymentOpen] = useState(false);
   const [paymentChoice, setPaymentChoice] = useState<"qr" | "card">("qr");
   const [complete, setComplete] = useState(false);
+  const [requestToken, setRequestToken] = useState("");
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const total = quantity * 2000;
   const submitPayment = trpc.payments.submitQr.useMutation({
-    onSuccess: () => {
+    onSuccess: (result) => {
+      setRequestToken(result.confirmationToken);
       setPaymentOpen(false);
       setComplete(true);
     },
     onError: () => toast.error("We couldn't submit your payment for review. Please try again."),
   });
 
+  const paymentStatusQuery = trpc.payments.status.useQuery(
+    { token: requestToken },
+    { enabled: Boolean(requestToken), refetchInterval: 3000, refetchOnWindowFocus: true },
+  );
+  const paymentStatus = paymentStatusQuery.data?.status ?? "pending";
+  const canFinish = paymentStatus === "approved";
   const submitCheckout = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setCheckoutOpen(false);
@@ -181,7 +189,19 @@ export default function Home() {
 
       {paymentOpen && <div className="fixed inset-0 z-50 flex items-end justify-center bg-[#181817]/60 p-0 backdrop-blur-sm sm:items-center sm:p-5"><div className="relative w-full max-w-lg bg-[#fffdfa] p-5 shadow-2xl sm:p-8"><button onClick={() => setPaymentOpen(false)} className="absolute right-4 top-4 grid h-9 w-9 place-items-center border border-[#deddd7] text-[#77766f] transition hover:border-[#ed1c2e] hover:text-[#ed1c2e]" aria-label="Close payment methods"><X size={17} /></button><div className="mb-6 pr-10"><div className="mb-2 flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.18em] text-[#ed1c2e]"><LockKeyhole size={14} /> Secure payment</div><h2 className="font-display text-3xl font-black tracking-[-0.06em]">Choose how to pay.</h2><p className="mt-2 text-sm leading-6 text-[#85847d]">Complete your day-pass payment of <strong className="text-[#181817]">LKR {total.toLocaleString()}</strong>.</p></div><div className="grid grid-cols-2 gap-3"><button type="button" onClick={() => setPaymentChoice("qr")} className={`flex items-center gap-3 border p-4 text-left transition ${paymentChoice === "qr" ? "border-[#ed1c2e] bg-[#fff1f1] text-[#ed1c2e]" : "border-[#deddd7] bg-[#faf9f6] text-[#595852] hover:border-[#ed1c2e]"}`}><QrCode size={22} /><span><span className="block text-sm font-bold">QR Pay</span><span className="mt-0.5 block text-[11px] text-[#8b8a83]">Scan to pay</span></span></button><button type="button" onClick={() => setPaymentChoice("card")} className={`flex items-center gap-3 border p-4 text-left transition ${paymentChoice === "card" ? "border-[#ed1c2e] bg-[#fff1f1] text-[#ed1c2e]" : "border-[#deddd7] bg-[#faf9f6] text-[#595852] hover:border-[#ed1c2e]"}`}><CreditCard size={22} /><span><span className="block text-sm font-bold">Card Pay</span><span className="mt-0.5 block text-[11px] text-[#8b8a83]">Official portal</span></span></button></div>{paymentChoice === "qr" ? <div className="mt-5 border border-[#e3e1db] bg-[#faf9f6] p-5 text-center"><div className="mx-auto mb-4 flex h-10 w-fit items-center gap-2 bg-[#181817] px-3 text-[10px] font-bold uppercase tracking-[0.16em] text-white"><QrCode size={15} /> Scan QR to pay</div><img src="/manus-storage/WhatsAppImage2026-09-27at2.25.40PM_f2858c77.jpeg" alt="PowerWorld QR payment code" className="mx-auto aspect-square w-full max-w-[230px] object-contain bg-white p-2" /><p className="mt-4 text-xs leading-5 text-[#77766f]">Open your banking app, scan the code, and pay <strong className="text-[#181817]">LKR {total.toLocaleString()}</strong>.</p><button type="button" disabled={submitPayment.isPending} onClick={() => submitPayment.mutate({ customerName: name, phone, branch: gym, visitDate: date, quantity, amount: total })} className="mt-5 flex w-full items-center justify-center gap-3 bg-[#ed1c2e] px-5 py-4 text-sm font-bold text-white transition hover:bg-[#c51426] disabled:cursor-wait disabled:opacity-60">{submitPayment.isPending ? "Submitting for review…" : "I've completed payment"} {!submitPayment.isPending && <Check size={17} />}</button></div> : <div className="mt-5 border border-[#e3e1db] bg-[#faf9f6] p-5"><div className="flex items-start gap-3"><CreditCard size={20} className="mt-0.5 shrink-0 text-[#ed1c2e]" /><div><div className="font-display text-lg font-bold tracking-[-0.04em]">Continue on PowerWorld</div><p className="mt-1 text-sm leading-6 text-[#77766f]">You&apos;ll be taken to the official PowerWorld app to complete your card payment.</p></div></div><button type="button" onClick={() => { window.location.href = "https://app.powerworldgyms.com"; }} className="mt-5 flex w-full items-center justify-center gap-3 bg-[#181817] px-5 py-4 text-sm font-bold text-white transition hover:bg-[#ed1c2e]">Go to official card payment <ExternalLink size={17} /></button></div>}</div></div>}
 
-      {complete && <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#181817]/60 p-5 backdrop-blur-sm"><div className="w-full max-w-md bg-[#fffdfa] p-7 text-center shadow-2xl sm:p-10"><div className="mx-auto grid h-16 w-16 place-items-center rounded-full bg-[#fff1f1] text-[#ed1c2e]"><Clock3 size={34} /></div><div className="mt-6 text-[10px] font-bold uppercase tracking-[0.2em] text-[#ed1c2e]">Payment submitted</div><h2 className="mt-3 font-display text-4xl font-black tracking-[-0.07em]">Your payment is in review.</h2><p className="mx-auto mt-4 max-w-xs text-sm leading-6 text-[#85847d]">Your QR payment for {name || "your visit"} at {gym} on {formatDate(date)} was sent to the PowerWorld owner for confirmation.</p><div className="mt-7 flex items-center justify-between border-y border-[#e3e1db] py-4 text-left"><div><div className="text-xs text-[#8b8a83]">Total</div><div className="font-display text-2xl font-black">LKR {total.toLocaleString()}</div></div><div className="text-right"><div className="text-xs text-[#8b8a83]">Status</div><div className="font-display text-2xl font-black text-[#ed1c2e]">Pending</div></div></div><button onClick={() => setComplete(false)} className="mt-7 w-full bg-[#ed1c2e] px-5 py-4 text-sm font-bold text-white transition hover:bg-[#c51426]">Done</button></div></div>}
+      {complete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#181817]/60 p-5 backdrop-blur-sm">
+          <div className="relative w-full max-w-md bg-[#fffdfa] p-7 text-center shadow-2xl sm:p-10">
+            <button onClick={() => setComplete(false)} className="absolute right-4 top-4 grid h-9 w-9 place-items-center border border-[#deddd7] text-[#77766f] transition hover:border-[#ed1c2e] hover:text-[#ed1c2e]" aria-label="Close payment status"><X size={17} /></button>
+            <div className={`mx-auto grid h-16 w-16 place-items-center rounded-full ${canFinish ? "bg-[#e7f7ed] text-[#20a15a]" : paymentStatus === "rejected" ? "bg-[#f2f1ee] text-[#89877f]" : "bg-[#fff1f1] text-[#ed1c2e]"}`}><Clock3 size={34} /></div>
+            <div className="mt-6 text-[10px] font-bold uppercase tracking-[0.2em] text-[#ed1c2e]">{canFinish ? "Payment approved" : paymentStatus === "rejected" ? "Payment rejected" : "Payment submitted"}</div>
+            <h2 className="mt-3 font-display text-4xl font-black tracking-[-0.07em]">{canFinish ? "You’re good to go." : paymentStatus === "rejected" ? "Payment needs attention." : "Your payment is in review."}</h2>
+            <p className="mx-auto mt-4 max-w-xs text-sm leading-6 text-[#85847d]">{canFinish ? `Your QR payment for ${name || "your visit"} at ${gym} on ${formatDate(date)} has been confirmed by PowerWorld.` : paymentStatus === "rejected" ? "The owner could not confirm this payment. Please contact PowerWorld before visiting." : `Your QR payment for ${name || "your visit"} at ${gym} on ${formatDate(date)} was sent to the PowerWorld owner for confirmation.`}</p>
+            <div className="mt-7 flex items-center justify-between border-y border-[#e3e1db] py-4 text-left"><div><div className="text-xs text-[#8b8a83]">Total</div><div className="font-display text-2xl font-black">LKR {total.toLocaleString()}</div></div><div className="text-right"><div className="text-xs text-[#8b8a83]">Status</div><div className={`font-display text-2xl font-black ${canFinish ? "text-[#20a15a]" : "text-[#ed1c2e]"}`}>{canFinish ? "Approved" : paymentStatus === "rejected" ? "Rejected" : "Pending"}</div></div></div>
+            <button disabled={!canFinish} onClick={() => setComplete(false)} className={`mt-7 w-full px-5 py-4 text-sm font-bold text-white transition ${canFinish ? "bg-[#ed1c2e] hover:bg-[#c51426]" : "cursor-not-allowed bg-[#b9b7b1]"}`}>{canFinish ? "Done" : paymentStatus === "rejected" ? "Payment rejected" : "Waiting for owner approval…"}</button>
+          </div>
+        </div>
+      )}
     </main>
   );
 }

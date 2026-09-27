@@ -1,0 +1,2 @@
+ALTER TABLE `payment_requests` ADD `confirmationToken` varchar(64);--> statement-breakpoint
+ALTER TABLE `payment_requests` ADD CONSTRAINT `payment_requests_confirmationToken_unique` UNIQUE(`confirmationToken`);
